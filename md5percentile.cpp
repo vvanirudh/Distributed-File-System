@@ -45,7 +45,7 @@ void generate(int* arr, int n)
 
 int md5percentile(string md5, int numNodes)
 {
-	string md5bin = hextobin(md5hex);
+	string md5bin = hextobin(md5);
 	int array[128];
 	generate(array,numNodes);
 	int sum = 0;
