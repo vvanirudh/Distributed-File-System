@@ -42,27 +42,21 @@ void generate(int* arr, int n)
 	}
 }
 
-int main()
+int md5percentile(string md5, int numNodes)
 {
-	string md5hex = "856b987c38f421107e5f73fa9fa46db5";
 	string md5bin = hextobin(md5hex);
-	// cout<<md5bin<<endl<<endl;
-
-	int node = 17;
-
 	int array[128];
-	generate(array, node);
-	// for(int i=0;i<128;i++) cout<<array[i]<<" ";
-	// cout<<endl;
+	generate(array,numNodes);
 	int sum = 0;
 	int j=0;
 	for(int i=0;i<128;i++)
 	{
-		if(md5bin[i]=='1') { j++; sum = sum + array[127-i];}
+		if(md5bin[i]=='1')
+		{
+			j++;
+			sum = sum + array[127-i];
+		}
 	}
-	sum = sum%node;
-	cout<<sum<<" "<<endl;
-
-	return 0;
-
+	sum = sum%numNodes;
+	return sum;
 }

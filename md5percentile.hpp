@@ -1,0 +1,2 @@
+string hextobin(string hex);
+
