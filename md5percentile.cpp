@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <bitset>
 
 using namespace std;
 
@@ -32,55 +31,38 @@ string hextobin(string hex)
 	return bin;
 }
 
-bool compare(string p, string q)
+void generate(int* arr, int n)
 {
-	bitset<4> top(p);
-	bitset<4> bot(q);
-
-	int t = top.to_ulong();
-	int b = bot.to_ulong();
-	int r = t-b;
-	if(r<0) return false;
-	else return true;
-
+	arr[0]=1;
+	for(int i=1;i<128;i++)
+	{
+		int b = 2*arr[i-1];
+		if(b>=n) b = b-n;
+		arr[i] = b;
+	}
 }
-
-string subtract(string p, string q)
-{
-	int length = p.length();
-	bitset<length> top(p);
-	bitset<length> bot(q);
-
-	int t = top.to_ulong();
-	int b = bot.to_ulong();
-	int r = t-b;
-	bitset<length> res(r);
-	return res.to_string();
-}
-
 
 int main()
 {
 	string md5hex = "856b987c38f421107e5f73fa9fa46db5";
 	string md5bin = hextobin(md5hex);
-	
-	int node = 15;
-	string nodebin = "1111";
+	// cout<<md5bin<<endl<<endl;
 
-	int i=0;
-	while(true)
+	int node = 17;
+
+	int array[128];
+	generate(array, node);
+	// for(int i=0;i<128;i++) cout<<array[i]<<" ";
+	// cout<<endl;
+	int sum = 0;
+	int j=0;
+	for(int i=0;i<128;i++)
 	{
-		string p = md5bin.substr(i,4);
-		string q;
-		if(compare(p,nodebin)==true)
-		{
-			q = subtract(p,nodebin);
-		}
-		else
-		{
-			
-		}
+		if(md5bin[i]=='1') { j++; sum = sum + array[127-i];}
 	}
+	sum = sum%node;
+	cout<<sum<<" "<<endl;
 
 	return 0;
+
 }
