@@ -66,6 +66,8 @@ int main(int argc,char** argv)
 		}
 		if(n>0)
 		{
+			string msg = string(buff);
+			string md5 = msg.substr(0,64);
 				
 		}		
 	}while(1);
