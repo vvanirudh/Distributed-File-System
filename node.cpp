@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <fstream>
 #include <string>
+#include "md5percentile.hpp"
 
 using namespace std;
 
