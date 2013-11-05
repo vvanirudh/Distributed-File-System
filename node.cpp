@@ -59,17 +59,13 @@ int main(int argc,char** argv)
 		{
 			printf("Cannot receive data\n");
 			continue;
-<<<<<<< HEAD
 		}
 		if(n>0)
 		{
 			string msg = string(buff);
 			string md5 = msg.substr(0,64);
 				
-		}		
-=======
-		}	
->>>>>>> parent of fa50465... Server now reading from file and running
+		}			
 	}while(1);
 
 	return 0;
