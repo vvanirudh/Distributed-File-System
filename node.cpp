@@ -156,14 +156,16 @@ int main(int argc,char** argv)
   						printf("User has closed connection on you\n");
   						return 0;
   					}
-  					ofstream storefile("folder/"+md5+".txt");
+  					ofstream storefile;
+  					storefile.open(("folder/"+md5+".txt").c_str());
   					string data(buffer);
   					storefile<<data;
   					storefile.close();
   				}
   				else if(operation=="retrieve")
   				{
-  					ifstream retrievefile("folder/"+md5+".txt");
+  					ifstream retrievefile;
+  					retrievefile.open(("folder/"+md5+".txt").c_str());
   					string data;
   					getline(retrievefile,data);
   					retrievefile.close();
