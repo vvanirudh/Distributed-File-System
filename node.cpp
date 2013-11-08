@@ -7,6 +7,8 @@
 #include <string>
 #include <arpa/inet.h>
 #include "md5percentile.hpp"
+#include <unistd.h>
+#include <string.h>
 
 using namespace std;
 
@@ -91,7 +93,7 @@ int main(int argc,char** argv)
 				spaceindex = line.find(" ");
 				port = line.substr(colonindex+1,spaceindex-colonindex);
 				portnum = atoi(port.c_str()); //port number of the destined node
-
+				dfile.close();
 				//Put the corresponding info into a struct sockaddr
 				toNode.sin_family = AF_INET; //family set
 				toNode.sin_port = htons(portnum); //port number is assigned
@@ -120,7 +122,7 @@ int main(int argc,char** argv)
                 int tcpsock;
                 struct sockaddr_in user;
                 socklen_t userLen;
-                char buff[1024];
+                char buffer[1024];
                 int numOfBytes;
 
                 if((tcpsock = socket(PF_INET,SOCK_STREAM,0))<0)
@@ -129,17 +131,46 @@ int main(int argc,char** argv)
                     return 0;
                 }
                 printf("TCP Socket created \n");
-                
-                if(operation=="store")
-                {
-                	user.sin_family = AF_INET;
-                	user.sin_port = htons(portnumOfClient);
-                	user.sin_addr.s_addr = inet_addr(ipaddrOfClient.c_str());
-                	memset(&(user.sin_zero),'\0',8);
+                    
+            	user.sin_family = AF_INET;
+            	user.sin_port = htons(portnumOfClient);
+            	user.sin_addr.s_addr = inet_addr(ipaddrOfClient.c_str());
+            	memset(&(user.sin_zero),'\0',8);
 
-                	connect(tcpsock,(struct sockaddr*)user,sizeof(struct sockaddr));
-                }
+            	if(connect(tcpsock,(struct sockaddr*)&user,sizeof(struct sockaddr)) < 0)
+            	{
+            		printf("TCP connection failed\n");
+            		return 0;
+            	}
 
+  				if(operation=="store")
+  				{
+  					int numOfBytes = recv(tcpsock,buffer,1024,0);
+  					if(numOfBytes<0)
+  					{
+  						printf("Error in receiving data\n");
+  						return 0;
+  					}
+  					else if(numOfBytes==0)
+  					{
+  						printf("User has closed connection on you\n");
+  						return 0;
+  					}
+  					ofstream storefile("folder/"+md5+".txt");
+  					string data(buffer);
+  					storefile<<data;
+  					storefile.close();
+  				}
+  				else if(operation=="retrieve")
+  				{
+  					ifstream retrievefile("folder/"+md5+".txt");
+  					string data;
+  					getline(retrievefile,data);
+  					retrievefile.close();
+
+  					int numOfBytes = send(tcpsock,data.c_str(),1024,0); //Check the length field(Maybe should be given the actual length)
+  				}
+  				close(tcpsock);
 			}
 		}		
 	}while(1);
