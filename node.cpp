@@ -115,6 +115,30 @@ int main(int argc,char** argv)
 				spaceindex = ipaddrOfClientAndPort.find(" ");
 				string portOfClient = ipaddrOfClientAndPort.substr(colonindex+1,spaceindex-colonindex);
 				int portnumOfClient = atoi(portOfClient.c_str()); //Port number of the client
+				string operation = ipaddrOfClientAndPort.substr(ipaddrOfClientAndPort.find(" ")+1);
+
+                int tcpsock;
+                struct sockaddr_in user;
+                socklen_t userLen;
+                char buff[1024];
+                int numOfBytes;
+
+                if((tcpsock = socket(PF_INET,SOCK_STREAM,0))<0)
+                {
+                    printf("TCP Socket not created. Failed!\n");
+                    return 0;
+                }
+                printf("TCP Socket created \n");
+                
+                if(operation=="store")
+                {
+                	user.sin_family = AF_INET;
+                	user.sin_port = htons(portnumOfClient);
+                	user.sin_addr.s_addr = inet_addr(ipaddrOfClient.c_str());
+                	memset(&(user.sin_zero),'\0',8);
+
+                	connect(tcpsock,(struct sockaddr*)user,sizeof(struct sockaddr));
+                }
 
 			}
 		}		
