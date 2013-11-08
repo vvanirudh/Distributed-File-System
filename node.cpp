@@ -9,6 +9,7 @@
 #include "md5percentile.hpp"
 #include <unistd.h>
 #include <string.h>
+#include <vector>
 
 using namespace std;
 
@@ -19,17 +20,23 @@ int main(int argc,char** argv)
 		printf("Please give the node number(0 - N-1) as a command line argument\n");
 		return 0;
 	}
+
+	int nodeID = atoi(argv[1]); //read in the nodeID of the current node from the command line argument
+
 	//Opening the configuration file
 	ifstream file;
 	file.open("FileMesh.cfg");
+
 	string line;
-	int nodeID = atoi(argv[1]); //read in the nodeID of the current node from the command line argument
-	getline(file,line);
-	int numNodes = atoi(line.c_str()); //read in the total number of nodes from the first line of the configuration file.
-	for(int i=0;i<nodeID;i++)
+	vector<string> nodes;
+	
+	while(getline(file,line))
 	{
-		getline(file,line); //Traverse through lines of the file
+		if(line!="") nodes.push_back(line);
 	}
+
+	int numNodes = nodes.size();
+	line = nodes[nodeID];
 	//Get the ip address and the port of the present node
 	int colonindex = line.find(":"); 
 	string ip_addr = line.substr(0,colonindex); //Ip address as a string
@@ -86,14 +93,13 @@ int main(int argc,char** argv)
 			if(nodeToBeSent!=nodeID) //If the node to which the request should be sent is not the same as the current node
 			{
 				//Open the configuration file and read the ipaddress and port of the destined node
-				ifstream dfile("FileMesh.cfg");
-				for(int i=0;i<nodeToBeSent+1;i++) {getline(dfile,line);}
+				line = nodes[nodeToBeSent];
 				colonindex = line.find(":");
 				ip_addr = line.substr(0,colonindex);//ip address of the destined node
 				spaceindex = line.find(" ");
 				port = line.substr(colonindex+1,spaceindex-colonindex);
 				portnum = atoi(port.c_str()); //port number of the destined node
-				dfile.close();
+				
 				//Put the corresponding info into a struct sockaddr
 				toNode.sin_family = AF_INET; //family set
 				toNode.sin_port = htons(portnum); //port number is assigned
