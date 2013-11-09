@@ -19,7 +19,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	int udpsock;
-	struct sockaddr_in myaddr,toNode;
+	struct sockaddr_in myaddr,toNode,connNode;
 	char buff[1024];
 
 
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
 	if(operation=="store")
 	{
-		system(("md5 "+filename +"| awk '{printf $4}' > temp").c_str());  // CHANGE THIS SO THAT IT RUNS PERFECTLY ON LINUX. THIS WORKS ON MAC
+		system(("md5sum "+filename +"| awk '{printf $1}' > temp").c_str());  // CHANGE THIS SO THAT IT RUNS PERFECTLY ON LINUX. THIS WORKS ON MAC
 		ifstream readfile;
 		readfile.open("temp");
 		getline(readfile,line);
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	}
 	else if(operation=="retrieve")
 	{
-		ifstream md5file;
+		/*ifstream md5file;
 		md5file.open("md5mapping.txt");
 		while(getline(md5file,line))
 		{
@@ -79,7 +79,9 @@ int main(int argc, char** argv)
 		{
 			cout<<"file not found"<<endl;
 			return 0;
-		}
+		}*/
+		md5sum = filename;
+
 	}
 
 
@@ -120,6 +122,80 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	close(udpsock);
+	int tcpsock_l,tcpsock;
+
+	if((tcpsock_l = socket(PF_INET,SOCK_STREAM,0)) < 0)
+	{
+		printf("TCP socket creation failed!\n");
+		return 0;
+	}
+
+
+	if(bind(tcpsock_l,(struct sockaddr*)&myaddr,sizeof(myaddr))<0)
+	{
+		printf("TCP socket binding failed\n");
+		return 0;
+	}
+
+	if(listen(tcpsock_l, 10) < 0){
+		printf("listening failed\n");
+		return 0;		
+	}
+	socklen_t size = sizeof(struct sockaddr_in);
+	if ((tcpsock = accept(tcpsock_l, (struct sockaddr *)&connNode, &size )) < 0 ){
+		printf("accepting failed\n");
+		return 0;	
+	}
+
+	if(operation == "store"){
+		ifstream fileIn;
+		int len,sentBytes;
+		string line;
+		fileIn.open(filename.c_str());
+		if(fileIn.is_open()){
+			while (getline (fileIn,line)){
+				len = strlen(line.c_str());
+				//len+1 characters are sent because the '\0' character is also to be sent
+				if( (sentBytes = send(tcpsock,line.c_str(), len+1, 0)) < 0) {
+					printf("sending failed\n");
+					return 0;
+				}
+			}
+		}
+		else{
+			printf("Failed to open file\n");
+		}
+	}
+	else if(operation == "retrieve"){	
+        char buffer[1024];
+        int numOfBytes;
+  		ofstream storefile;
+		storefile.open((md5sum+".txt").c_str());
+
+		while( (numOfBytes = recv(tcpsock,buffer,1024,0)) > 0 ){
+			string data(buffer);
+			cout<<data<<"\n";
+			storefile<<data<<"\n";
+		}
+
+		storefile.close();
+
+		if(numOfBytes<0)
+		{
+			printf("Error in receiving data\n");
+			//return 0;
+		}
+		else if(numOfBytes==0)
+		{
+			printf("Finished retrieving the file\n");
+			//return 0;
+		}
+
+
+	}
+	close(tcpsock_l);
+	close(tcpsock);
 
 	return 0;
 }

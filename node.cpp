@@ -88,6 +88,7 @@ int main(int argc,char** argv)
 		if(numOfBytesReceived>0) //If data is successfully received
 		{
 			string msg = string(buff); // Retrieve the message as a string
+			cout<<msg<<endl;
 			string md5 = msg.substr(0,32); //Retrieve the md5sum from the received data
 			int nodeToBeSent = md5percentile(md5,numNodes); //Calculate md5sum % N where N = num of nodes
 			if(nodeToBeSent!=nodeID) //If the node to which the request should be sent is not the same as the current node
@@ -148,37 +149,54 @@ int main(int argc,char** argv)
             		printf("TCP connection failed\n");
             		return 0;
             	}
-
+				
   				if(operation=="store")
   				{
-  					int numOfBytes = recv(tcpsock,buffer,1024,0);
+
+  					ofstream storefile;
+  					storefile.open(("folder"+string(argv[1])+"/"+md5+".txt").c_str());
+
+  					while( (numOfBytes = recv(tcpsock,buffer,1024,0)) > 0 ){
+						string data(buffer);
+  						storefile<<data<<"\n";
+					}
+
+					storefile.close();
+
   					if(numOfBytes<0)
   					{
   						printf("Error in receiving data\n");
-  						return 0;
+  						//return 0;
   					}
   					else if(numOfBytes==0)
   					{
   						printf("User has closed connection on you\n");
-  						return 0;
+  						//return 0;
   					}
-  					ofstream storefile;
-  					storefile.open(("folder/"+md5+".txt").c_str());
-  					string data(buffer);
-  					storefile<<data;
-  					storefile.close();
+
   				}
   				else if(operation=="retrieve")
   				{
+					cout<<operation<<endl;
   					ifstream retrievefile;
-  					retrievefile.open(("folder/"+md5+".txt").c_str());
-  					string data;
-  					getline(retrievefile,data);
+					int len,sentBytes;
+					string line;
+  					retrievefile.open(("folder"+string(argv[1])+"/"+md5+".txt").c_str());
+					if(retrievefile.is_open()){
+						while (getline (retrievefile,line)){						
+							len = strlen(line.c_str());
+							cout<<line<<endl;
+							if( (sentBytes = send(tcpsock,line.c_str(), len+1, 0)) < 0) {
+								printf("sending failed\n");
+							}
+						}
+					}
+					else{
+						printf("Failed to open file\n");
+					}
   					retrievefile.close();
-
-  					int numOfBytes = send(tcpsock,data.c_str(),1024,0); //Check the length field(Maybe should be given the actual length)
   				}
-  				close(tcpsock);
+  				//close(tcpsock);
 			}
 		}		
 	}while(1);

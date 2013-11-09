@@ -1,5 +1,3 @@
 We assume that the request sent by the user program looks like this:
-
 md5(in hex) ipaddr:port store/retrieve
-
 a39a569dce52397b02bd88821373bdae 127.0.0.1:5000 store 
