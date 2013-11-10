@@ -5,3 +5,4 @@ user: user.cpp
 	g++ -o user user.cpp
 clean:
 	rm node
+	rm user

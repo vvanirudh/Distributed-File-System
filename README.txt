@@ -11,6 +11,7 @@ Compilation instructions:
 -------------------------
 
 	1. Type 'make' to compile all the relevant files and generate two executables.
+	2. To recompile please do 'make clean' to remove previous executables and then type 'make' to compile.
 
 Configuration file(s):
 ----------------------
