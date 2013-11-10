@@ -117,7 +117,7 @@ int main(int argc,char** argv)
 				if(numOfBytesSent<0) //If the sending failed
 				{
 					printf("Sending failed\n");
-					return 0;
+					continue;
 				}
 			}
 			else //if the current node is the destined node for the request
@@ -156,7 +156,8 @@ int main(int argc,char** argv)
             	if(connect(tcpsock,(struct sockaddr*)&user,sizeof(struct sockaddr)) < 0)
             	{
             		printf("TCP connection failed\n");
-            		return 0;
+            		//return 0;
+			continue;
             	}
 				
 
