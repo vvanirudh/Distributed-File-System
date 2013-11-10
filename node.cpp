@@ -185,7 +185,7 @@ int main(int argc,char** argv)
   					ifstream retrievefile;
 					int len,sentBytes;
 					string line;
-  					retrievefile.open(("folder"+string(argv[1])+"/"+md5+".txt").c_str());
+  					retrievefile.open((folderName+"/"+md5+".txt").c_str());
 					if(retrievefile.is_open()){
 						while (getline (retrievefile,line)){	
 							line += "\n";				
