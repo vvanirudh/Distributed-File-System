@@ -137,6 +137,8 @@ int main(int argc, char** argv)
 		printf("TCP socket binding failed\n");
 		return 0;
 	}
+	int optval =1 ;
+	setsockopt(tcpsock_l,SOL_SOCKET,SO_REUSEADDR, &optval, sizeof(optval));
 
 	if(listen(tcpsock_l, 10) < 0){
 		printf("listening failed\n");
@@ -155,9 +157,10 @@ int main(int argc, char** argv)
 		fileIn.open(filename.c_str());
 		if(fileIn.is_open()){
 			while (getline (fileIn,line)){
+				line+="\n";
 				len = strlen(line.c_str());
 				//len+1 characters are sent because the '\0' character is also to be sent
-				if( (sentBytes = send(tcpsock,line.c_str(), len+1, 0)) < 0) {
+				if( (sentBytes = send(tcpsock,line.c_str(), len, 0)) < 0) {
 					printf("sending failed\n");
 					return 0;
 				}
@@ -174,9 +177,11 @@ int main(int argc, char** argv)
 		storefile.open((md5sum+".txt").c_str());
 
 		while( (numOfBytes = recv(tcpsock,buffer,1024,0)) > 0 ){
+			buffer[numOfBytes] = '\0';
 			string data(buffer);
-			cout<<data<<"\n";
-			storefile<<data<<"\n";
+			//cout<<numOfBytes<<"\n" ;
+			cout<<data;
+			storefile<<data;
 		}
 
 		storefile.close();

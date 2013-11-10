@@ -49,6 +49,8 @@ int main(int argc,char** argv)
 
 	file.close();//close the file
 
+	system(("mkdir -p "+folderName).c_str());
+
 	//Socket variables
 	int sock;//socket descriptor
 	struct sockaddr_in server,client,toNode; //structs which hold socket information
@@ -154,11 +156,13 @@ int main(int argc,char** argv)
   				{
 
   					ofstream storefile;
-  					storefile.open(("folder"+string(argv[1])+"/"+md5+".txt").c_str());
+  					storefile.open((folderName+"/"+md5+".txt").c_str());
 
   					while( (numOfBytes = recv(tcpsock,buffer,1024,0)) > 0 ){
+						
+						buffer[numOfBytes] = '\0';
 						string data(buffer);
-  						storefile<<data<<"\n";
+  						storefile<<data;
 					}
 
 					storefile.close();
@@ -183,11 +187,16 @@ int main(int argc,char** argv)
 					string line;
   					retrievefile.open(("folder"+string(argv[1])+"/"+md5+".txt").c_str());
 					if(retrievefile.is_open()){
-						while (getline (retrievefile,line)){						
+						while (getline (retrievefile,line)){	
+							line += "\n";				
 							len = strlen(line.c_str());
-							cout<<line<<endl;
-							if( (sentBytes = send(tcpsock,line.c_str(), len+1, 0)) < 0) {
+							cout<<line;
+							if( (sentBytes = send(tcpsock,line.c_str(), len, 0)) < 0) {
+								
 								printf("sending failed\n");
+							}
+							else{
+								//cout<<sentBytes<<endl;
 							}
 						}
 					}
@@ -196,7 +205,7 @@ int main(int argc,char** argv)
 					}
   					retrievefile.close();
   				}
-  				//close(tcpsock);
+  				close(tcpsock);
 			}
 		}		
 	}while(1);
