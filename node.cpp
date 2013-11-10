@@ -134,77 +134,92 @@ int main(int argc,char** argv)
                 char buffer[1024];
                 int numOfBytes;
 
+				//creating tcp socket
                 if((tcpsock = socket(PF_INET,SOCK_STREAM,0))<0)
                 {
                     printf("TCP Socket not created. Failed!\n");
                     return 0;
                 }
                 printf("TCP Socket created \n");
-                    
+                 
+   				//Filling the values in the sockaddr object with the user's information
             	user.sin_family = AF_INET;
             	user.sin_port = htons(portnumOfClient);
             	user.sin_addr.s_addr = inet_addr(ipaddrOfClient.c_str());
             	memset(&(user.sin_zero),'\0',8);
 
+				//Connecting to the socket running on the user program
             	if(connect(tcpsock,(struct sockaddr*)&user,sizeof(struct sockaddr)) < 0)
             	{
             		printf("TCP connection failed\n");
             		return 0;
             	}
 				
+
+				// After connection
+				//Store operation
   				if(operation=="store")
   				{
-
+					//Opens the output file stream
   					ofstream storefile;
+					//Stored as md5.txt in the node's folder
   					storefile.open((folderName+"/"+md5+".txt").c_str());
-
+				
+					// Gets the bytes from the buffer and stores into the file
   					while( (numOfBytes = recv(tcpsock,buffer,1024,0)) > 0 ){
-						
+						//Append a '\0' at the last bit + 1 to read it as a string
 						buffer[numOfBytes] = '\0';
 						string data(buffer);
   						storefile<<data;
 					}
-
+					//closing the fstream
 					storefile.close();
-
+	
+					//error checking
   					if(numOfBytes<0)
   					{
   						printf("Error in receiving data\n");
-  						//return 0;
   					}
   					else if(numOfBytes==0)
   					{
   						printf("User has closed connection on you\n");
-  						//return 0;
   					}
 
   				}
+
+				//Retrieve
   				else if(operation=="retrieve")
   				{
-					cout<<operation<<endl;
+					//Opening the input file stream
   					ifstream retrievefile;
 					int len,sentBytes;
 					string line;
+
+					//The file was stored as md5.txt in the node's folder
   					retrievefile.open((folderName+"/"+md5+".txt").c_str());
+
 					if(retrievefile.is_open()){
-						while (getline (retrievefile,line)){	
+						//reading line-by-line and sending
+						while (getline (retrievefile,line)){
+							//adding newline character at the end of each line	
 							line += "\n";				
 							len = strlen(line.c_str());
-							cout<<line;
-							if( (sentBytes = send(tcpsock,line.c_str(), len, 0)) < 0) {
-								
+							if( (sentBytes = send(tcpsock,line.c_str(), len, 0)) < 0) {								
 								printf("sending failed\n");
 							}
 							else{
-								//cout<<sentBytes<<endl;
+								
 							}
 						}
+						printf("File sent\n");
 					}
 					else{
 						printf("Failed to open file\n");
 					}
+					//closing  the filestream
   					retrievefile.close();
   				}
+				//closing the connection
   				close(tcpsock);
 			}
 		}		
