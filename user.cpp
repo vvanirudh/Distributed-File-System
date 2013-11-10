@@ -1,3 +1,7 @@
+/*
+This file contains all the functionality implemented by the user to store/retrieve a file in/from a node.
+*/
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,7 @@
+/*
+This file contains all the functionality implemented by the node to service the requests from the users.
+*/
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -134,7 +138,7 @@ int main(int argc,char** argv)
                 char buffer[1024];
                 int numOfBytes;
 
-				//creating tcp socket
+		//creating tcp socket
                 if((tcpsock = socket(PF_INET,SOCK_STREAM,0))<0)
                 {
                     printf("TCP Socket not created. Failed!\n");
@@ -142,13 +146,13 @@ int main(int argc,char** argv)
                 }
                 printf("TCP Socket created \n");
                  
-   				//Filling the values in the sockaddr object with the user's information
+   		//Filling the values in the sockaddr object with the user's information
             	user.sin_family = AF_INET;
             	user.sin_port = htons(portnumOfClient);
             	user.sin_addr.s_addr = inet_addr(ipaddrOfClient.c_str());
             	memset(&(user.sin_zero),'\0',8);
 
-				//Connecting to the socket running on the user program
+		//Connecting to the socket running on the user program
             	if(connect(tcpsock,(struct sockaddr*)&user,sizeof(struct sockaddr)) < 0)
             	{
             		printf("TCP connection failed\n");
